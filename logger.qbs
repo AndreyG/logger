@@ -1,8 +1,8 @@
 import qbs.base 1.0
 
-Product {
-    type: "staticlibrary"
+StaticLibrary {
     name: "logger"
+
     files: [ 
         "src/stdafx.h",
         "src/debug_stream.cpp",
@@ -10,7 +10,9 @@ Product {
         "include/logger/debug_stream.h",
         "include/logger/stopwatch.h",
     ]
+
     Depends { name: "cpp" }
+
     cpp.cppFlags: "-std=c++0x"
     cpp.includePaths: "include" 
     cpp.staticLibraries: "boost_chrono"
