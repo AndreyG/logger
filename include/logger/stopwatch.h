@@ -1,5 +1,4 @@
-#ifndef _STOPWATCH_H_
-#define _STOPWATCH_H_
+#pragma once
 
 #include <chrono>
 #include <boost/chrono/process_cpu_clocks.hpp>
@@ -12,7 +11,10 @@ namespace util
     public:
         explicit stopwatch(const char *             message);
         explicit stopwatch(std::string const &      message);
-        explicit stopwatch(boost::format const &    message);
+
+        template<typename... Args>
+        stopwatch(const char * format, Args... args);
+
         ~stopwatch();
 
     private:
@@ -21,9 +23,28 @@ namespace util
     private:
         clock_t::time_point start;
     };
+
+    template<typename... Args>
+    boost::format expand(boost::format const & fmt, Args... args);
+
+    template<>
+    inline boost::format expand(boost::format const & fmt)
+    {
+        return fmt;
+    }
+
+    template<typename Arg, typename... Rest>
+    boost::format expand(boost::format fmt, Arg const & arg, Rest... rest)
+    {
+        return expand(fmt % arg, rest...);
+    }
+
+    template<typename... Args>
+    stopwatch::stopwatch(const char * format, Args... args)
+        : stopwatch(str(expand(boost::format(format), args...)))
+    {}
 }
 
-#define SET_STOPWATCH(message) \
-    util::stopwatch long_unique_stopwatch_name(message);
+#define SET_STOPWATCH(args...) \
+    util::stopwatch long_unique_stopwatch_name(args);
 
-#endif /* _STOPWATCH_H_ */
