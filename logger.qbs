@@ -16,5 +16,5 @@ StaticLibrary {
     cpp.cppFlags: "-std=c++0x"
     cpp.includePaths: "include" 
     cpp.staticLibraries: "boost_chrono"
-    cpp.precompiledHeader: "src/stdafx.h"
+    //cpp.precompiledHeader: "src/stdafx.h"
 }
