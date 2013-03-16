@@ -3,4 +3,4 @@
 #include "debug_stream.h"
 
 #define TRACE(var) \
-    util::debug_stream() << #var << " = " << var;
+    logger::debug_stream() << #var << " = " << var;

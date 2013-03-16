@@ -1,17 +1,14 @@
-#ifndef _DEBUG_STREAM_H_
-#define _DEBUG_STREAM_H_
+#pragma once
 
 #include <stack>
 #include <sstream>
 
-namespace util
+#include "message_type.h"
+
+namespace logger
 {
 	struct debug_stream
 	{
-		static void inc_indent();
-		static void dec_indent();
-		static bool is_first();
-
 		template<class Data>
 		debug_stream& operator << (Data const & data)
 		{
@@ -19,21 +16,24 @@ namespace util
 			return *this;
 		}
 
-        enum message_type 
-        {
-            INFO, WARNING, MESSAGE_TYPE_SIZE
+        enum stream_type 
+        { 
+            START_BLOCK, FINISH_BLOCK, REGULAR 
         };
 
-        debug_stream(message_type t = INFO);
-
+        debug_stream(stream_type t = REGULAR, message_type mt = INFO);
 		~debug_stream();
 
 	private:
         message_type type_;
+        bool deferred_;
+
 		std::stringstream ss_;
-        static size_t tabs_num;
-		static std::stack< bool > is_first_;
+
+        static size_t indent_, last_indent_;
+        static std::stack<bool> is_first_;
+
+        static bool last_deferred_;
 	};
 }
 
-#endif /*_DEBUG_STREAM_*/

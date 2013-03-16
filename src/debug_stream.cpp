@@ -1,60 +1,77 @@
 #include "stdafx.h"
+
 #include "logger/debug_stream.h"
 
-namespace util
+namespace logger
 {
-	void debug_stream::inc_indent() 
-	{ 
-		++tabs_num; 
-		is_first_.top() = false; 
-		is_first_.push( true );
-	}
+    debug_stream::debug_stream(stream_type st, message_type mt)
+        : type_(mt)
+        , deferred_(st == START_BLOCK)
+    {
+        switch (st)
+        {
+        case START_BLOCK:
+            if (!is_first_.empty() && !is_first_.top())
+            {
+                for (size_t i = indent_; i != 0; --i)
+                   std::cout << "|   ";
+                std::cout << "\n";
 
-	void debug_stream::dec_indent() 
-	{ 
-		--tabs_num;
-		is_first_.pop();
-	}
-	
-	bool debug_stream::is_first() 
-	{ 
-		return is_first_.top();
-	}
-
-    debug_stream::debug_stream(message_type t)
-        : type_(t)
-    {}
+                last_deferred_ = false;
+                last_indent_ = indent_;
+            }
+            if (is_first_.empty())
+                is_first_.push(false);
+            else
+                is_first_.top() = false;
+            is_first_.push(true);
+            break;
+        case FINISH_BLOCK:
+            --indent_;
+            is_first_.pop();
+            break;
+        case REGULAR: break;
+        }
+    }
 
 	debug_stream::~debug_stream()
 	{
-        static const char * color[MESSAGE_TYPE_SIZE] =
+        static const char * color[] =
         {
             "\033[0;37m", 
-            "\033[1;34m" 
+            "\033[0;32m", 
+            "\033[0;31m" 
         };
 
-        std::cout << color[type_];
+        using std::cout;
 
-        std::string s;
-        while (getline(ss_, s, '\n'))
-	    {
-            for ( size_t i = 0; i != tabs_num; ++i )
-                std::cout << "|   ";
-            std::cout << s << std::endl;
+        if (last_deferred_ && (last_indent_ != indent_))
+            cout << "\n";
+
+        if (!last_deferred_ || (last_indent_ != indent_))
+        {
+           cout << color[INFO];
+           for (size_t i = indent_; i != 0; --i)
+              cout << "|   ";
         }
+
+        cout << color[type_] << ss_.str();
+
+        if (deferred_)
+           cout.flush();
+        else
+           cout << std::endl;
+
+        last_deferred_ = deferred_;
+        last_indent_ = indent_;
+
+        if (deferred_)
+            ++indent_;
 	}
 
-	size_t debug_stream::tabs_num = 0;
+    size_t debug_stream::indent_ = 0, debug_stream::last_indent_;
+    bool debug_stream::last_deferred_ = false;
 
-	namespace 
-	{
-		std::stack< bool > almost_empty_stack()
-		{
-			std::stack< bool > res;
-			res.push( true );
-			return res;
-		}
-	}
-	
-	std::stack< bool > debug_stream::is_first_ = almost_empty_stack();
-}
+    std::stack< bool > debug_stream::is_first_;
+} 
+
