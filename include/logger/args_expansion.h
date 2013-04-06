@@ -5,24 +5,24 @@
 namespace logger
 {
     template<typename... Args>
-    boost::format expand(boost::format const & fmt, Args... args);
-
-    template<typename... Args>
-    std::string expand(const char * format, Args... args)
-    {
-        return str(expand(boost::format(format), args...));
-    }
+    boost::format expand(boost::format fmt, const Args&... args);
 
     template<>
-    inline boost::format expand(boost::format const & fmt)
+    inline boost::format expand(boost::format fmt)
     {
         return fmt;
     }
 
     template<typename Arg, typename... Rest>
-    boost::format expand(boost::format fmt, Arg const & arg, Rest... rest)
+    boost::format expand(boost::format fmt, const Arg& arg, const Rest&... rest)
     {
         return expand(fmt % arg, rest...);
+    }
+
+    template<typename... Args>
+    std::string expand(const char * format, Args... args)
+    {
+        return str(expand(boost::format(format), args...));
     }
 }
 
