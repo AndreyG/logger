@@ -16,13 +16,14 @@ StaticLibrary {
         "include/logger/stopwatch.h",
     ]
 
-    cpp.cppFlags: "-std=c++0x"
-    cpp.precompiledHeader: "src/stdafx.h"
+    Depends { name: "cpp" }
+    cpp.cppFlags: "-std=c++11"
+    cpp.includePaths: "include"
 
     Export {
         Depends { name: "cpp" }
 
         cpp.includePaths: "include" 
-        cpp.staticLibraries: "boost_chrono"
+        cpp.staticLibraries: ["boost_chrono", "boost_system"]
     }
 }
