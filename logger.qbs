@@ -24,6 +24,6 @@ StaticLibrary {
         Depends { name: "cpp" }
 
         cpp.includePaths: "include" 
-        cpp.staticLibraries: ["boost_chrono", "boost_system"]
+        cpp.dynamicLibraries: ["boost_chrono", "boost_system"]
     }
 }
